@@ -82,7 +82,10 @@ parseYieldExpression: true
         NullLiteral: 5,
         NumericLiteral: 6,
         Punctuator: 7,
-        StringLiteral: 8
+        StringLiteral: 8,
+
+        XJSIdentifier: 9,
+        XJSText: 10
     };
 
     TokenName = {};
@@ -94,6 +97,8 @@ parseYieldExpression: true
     TokenName[Token.NumericLiteral] = 'Numeric';
     TokenName[Token.Punctuator] = 'Punctuator';
     TokenName[Token.StringLiteral] = 'String';
+    TokenName[Token.XJSIdentifier] = 'XJSIdentifier';
+    TokenName[Token.XJSText] = 'XJSText';
 
     Syntax = {
         ArrayExpression: 'ArrayExpression',
@@ -153,7 +158,11 @@ parseYieldExpression: true
         VariableDeclarator: 'VariableDeclarator',
         WhileStatement: 'WhileStatement',
         WithStatement: 'WithStatement',
-        YieldExpression: 'YieldExpression'
+        YieldExpression: 'YieldExpression',
+        XJSIdentifier: 'XJSIdentifier',
+        XJSElement: 'XJSElement',
+        XJSAttribute: 'XJSAttribute',
+        XJSText: 'XJSText'
     };
 
     PropertyKind = {
@@ -199,13 +208,272 @@ parseYieldExpression: true
         StrictLHSPrefix:  'Prefix increment/decrement may not have eval or arguments operand in strict mode',
         StrictReservedWord:  'Use of future reserved word in strict mode',
         NoFromAfterImport: 'Missing from after import',
-        NoYieldInGenerator: 'Missing yield in generator'
+        NoYieldInGenerator: 'Missing yield in generator',
+        InvalidXJSTagName: 'XJS tag name can not be empty',
+        InvalidXJSAttributeValue: 'XJS value should be either an expression or a quoted XJS text',
+        ExpectedXJSClosingTag: 'Expected corresponding XJS closing tag for %0'
     };
 
     // See also tools/generate-unicode-regex.py.
     Regex = {
         NonAsciiIdentifierStart: new RegExp('[\xaa\xb5\xba\xc0-\xd6\xd8-\xf6\xf8-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05d0-\u05ea\u05f0-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u08a0\u08a2-\u08ac\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097f\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d\u0c58\u0c59\u0c60\u0c61\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d60\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u1000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1877\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191c\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19c1-\u19c7\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4b\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1ce9-\u1cec\u1cee-\u1cf1\u1cf5\u1cf6\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2e2f\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua697\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa80-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]'),
         NonAsciiIdentifierPart: new RegExp('[\xaa\xb5\xba\xc0-\xd6\xd8-\xf6\xf8-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0300-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u0483-\u0487\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u05d0-\u05ea\u05f0-\u05f2\u0610-\u061a\u0620-\u0669\u066e-\u06d3\u06d5-\u06dc\u06df-\u06e8\u06ea-\u06fc\u06ff\u0710-\u074a\u074d-\u07b1\u07c0-\u07f5\u07fa\u0800-\u082d\u0840-\u085b\u08a0\u08a2-\u08ac\u08e4-\u08fe\u0900-\u0963\u0966-\u096f\u0971-\u0977\u0979-\u097f\u0981-\u0983\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bc-\u09c4\u09c7\u09c8\u09cb-\u09ce\u09d7\u09dc\u09dd\u09df-\u09e3\u09e6-\u09f1\u0a01-\u0a03\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a3c\u0a3e-\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a59-\u0a5c\u0a5e\u0a66-\u0a75\u0a81-\u0a83\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abc-\u0ac5\u0ac7-\u0ac9\u0acb-\u0acd\u0ad0\u0ae0-\u0ae3\u0ae6-\u0aef\u0b01-\u0b03\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3c-\u0b44\u0b47\u0b48\u0b4b-\u0b4d\u0b56\u0b57\u0b5c\u0b5d\u0b5f-\u0b63\u0b66-\u0b6f\u0b71\u0b82\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bbe-\u0bc2\u0bc6-\u0bc8\u0bca-\u0bcd\u0bd0\u0bd7\u0be6-\u0bef\u0c01-\u0c03\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d-\u0c44\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c58\u0c59\u0c60-\u0c63\u0c66-\u0c6f\u0c82\u0c83\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbc-\u0cc4\u0cc6-\u0cc8\u0cca-\u0ccd\u0cd5\u0cd6\u0cde\u0ce0-\u0ce3\u0ce6-\u0cef\u0cf1\u0cf2\u0d02\u0d03\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d-\u0d44\u0d46-\u0d48\u0d4a-\u0d4e\u0d57\u0d60-\u0d63\u0d66-\u0d6f\u0d7a-\u0d7f\u0d82\u0d83\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0dca\u0dcf-\u0dd4\u0dd6\u0dd8-\u0ddf\u0df2\u0df3\u0e01-\u0e3a\u0e40-\u0e4e\u0e50-\u0e59\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb9\u0ebb-\u0ebd\u0ec0-\u0ec4\u0ec6\u0ec8-\u0ecd\u0ed0-\u0ed9\u0edc-\u0edf\u0f00\u0f18\u0f19\u0f20-\u0f29\u0f35\u0f37\u0f39\u0f3e-\u0f47\u0f49-\u0f6c\u0f71-\u0f84\u0f86-\u0f97\u0f99-\u0fbc\u0fc6\u1000-\u1049\u1050-\u109d\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u135d-\u135f\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1714\u1720-\u1734\u1740-\u1753\u1760-\u176c\u176e-\u1770\u1772\u1773\u1780-\u17d3\u17d7\u17dc\u17dd\u17e0-\u17e9\u180b-\u180d\u1810-\u1819\u1820-\u1877\u1880-\u18aa\u18b0-\u18f5\u1900-\u191c\u1920-\u192b\u1930-\u193b\u1946-\u196d\u1970-\u1974\u1980-\u19ab\u19b0-\u19c9\u19d0-\u19d9\u1a00-\u1a1b\u1a20-\u1a5e\u1a60-\u1a7c\u1a7f-\u1a89\u1a90-\u1a99\u1aa7\u1b00-\u1b4b\u1b50-\u1b59\u1b6b-\u1b73\u1b80-\u1bf3\u1c00-\u1c37\u1c40-\u1c49\u1c4d-\u1c7d\u1cd0-\u1cd2\u1cd4-\u1cf6\u1d00-\u1de6\u1dfc-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u200c\u200d\u203f\u2040\u2054\u2071\u207f\u2090-\u209c\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d7f-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2de0-\u2dff\u2e2f\u3005-\u3007\u3021-\u302f\u3031-\u3035\u3038-\u303c\u3041-\u3096\u3099\u309a\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua62b\ua640-\ua66f\ua674-\ua67d\ua67f-\ua697\ua69f-\ua6f1\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua827\ua840-\ua873\ua880-\ua8c4\ua8d0-\ua8d9\ua8e0-\ua8f7\ua8fb\ua900-\ua92d\ua930-\ua953\ua960-\ua97c\ua980-\ua9c0\ua9cf-\ua9d9\uaa00-\uaa36\uaa40-\uaa4d\uaa50-\uaa59\uaa60-\uaa76\uaa7a\uaa7b\uaa80-\uaac2\uaadb-\uaadd\uaae0-\uaaef\uaaf2-\uaaf6\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabea\uabec\uabed\uabf0-\uabf9\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe00-\ufe0f\ufe20-\ufe26\ufe33\ufe34\ufe4d-\ufe4f\ufe70-\ufe74\ufe76-\ufefc\uff10-\uff19\uff21-\uff3a\uff3f\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc]')
+    };
+
+    var XHTMLEntities = {
+      quot: "\u0022",
+      amp: "\u0026",
+      apos: "\u0027",
+      lt: "\u003C",
+      gt: "\u003E",
+      nbsp: "\u00A0",
+      iexcl: "\u00A1",
+      cent: "\u00A2",
+      pound: "\u00A3",
+      curren: "\u00A4",
+      yen: "\u00A5",
+      brvbar: "\u00A6",
+      sect: "\u00A7",
+      uml: "\u00A8",
+      copy: "\u00A9",
+      ordf: "\u00AA",
+      laquo: "\u00AB",
+      not: "\u00AC",
+      shy: "\u00AD",
+      reg: "\u00AE",
+      macr: "\u00AF",
+      deg: "\u00B0",
+      plusmn: "\u00B1",
+      sup2: "\u00B2",
+      sup3: "\u00B3",
+      acute: "\u00B4",
+      micro: "\u00B5",
+      para: "\u00B6",
+      middot: "\u00B7",
+      cedil: "\u00B8",
+      sup1: "\u00B9",
+      ordm: "\u00BA",
+      raquo: "\u00BB",
+      frac14: "\u00BC",
+      frac12: "\u00BD",
+      frac34: "\u00BE",
+      iquest: "\u00BF",
+      Agrave: "\u00C0",
+      Aacute: "\u00C1",
+      Acirc: "\u00C2",
+      Atilde: "\u00C3",
+      Auml: "\u00C4",
+      Aring: "\u00C5",
+      AElig: "\u00C6",
+      Ccedil: "\u00C7",
+      Egrave: "\u00C8",
+      Eacute: "\u00C9",
+      Ecirc: "\u00CA",
+      Euml: "\u00CB",
+      Igrave: "\u00CC",
+      Iacute: "\u00CD",
+      Icirc: "\u00CE",
+      Iuml: "\u00CF",
+      ETH: "\u00D0",
+      Ntilde: "\u00D1",
+      Ograve: "\u00D2",
+      Oacute: "\u00D3",
+      Ocirc: "\u00D4",
+      Otilde: "\u00D5",
+      Ouml: "\u00D6",
+      times: "\u00D7",
+      Oslash: "\u00D8",
+      Ugrave: "\u00D9",
+      Uacute: "\u00DA",
+      Ucirc: "\u00DB",
+      Uuml: "\u00DC",
+      Yacute: "\u00DD",
+      THORN: "\u00DE",
+      szlig: "\u00DF",
+      agrave: "\u00E0",
+      aacute: "\u00E1",
+      acirc: "\u00E2",
+      atilde: "\u00E3",
+      auml: "\u00E4",
+      aring: "\u00E5",
+      aelig: "\u00E6",
+      ccedil: "\u00E7",
+      egrave: "\u00E8",
+      eacute: "\u00E9",
+      ecirc: "\u00EA",
+      euml: "\u00EB",
+      igrave: "\u00EC",
+      iacute: "\u00ED",
+      icirc: "\u00EE",
+      iuml: "\u00EF",
+      eth: "\u00F0",
+      ntilde: "\u00F1",
+      ograve: "\u00F2",
+      oacute: "\u00F3",
+      ocirc: "\u00F4",
+      otilde: "\u00F5",
+      ouml: "\u00F6",
+      divide: "\u00F7",
+      oslash: "\u00F8",
+      ugrave: "\u00F9",
+      uacute: "\u00FA",
+      ucirc: "\u00FB",
+      uuml: "\u00FC",
+      yacute: "\u00FD",
+      thorn: "\u00FE",
+      yuml: "\u00FF",
+      OElig: "\u0152",
+      oelig: "\u0153",
+      Scaron: "\u0160",
+      scaron: "\u0161",
+      Yuml: "\u0178",
+      fnof: "\u0192",
+      circ: "\u02C6",
+      tilde: "\u02DC",
+      Alpha: "\u0391",
+      Beta: "\u0392",
+      Gamma: "\u0393",
+      Delta: "\u0394",
+      Epsilon: "\u0395",
+      Zeta: "\u0396",
+      Eta: "\u0397",
+      Theta: "\u0398",
+      Iota: "\u0399",
+      Kappa: "\u039A",
+      Lambda: "\u039B",
+      Mu: "\u039C",
+      Nu: "\u039D",
+      Xi: "\u039E",
+      Omicron: "\u039F",
+      Pi: "\u03A0",
+      Rho: "\u03A1",
+      Sigma: "\u03A3",
+      Tau: "\u03A4",
+      Upsilon: "\u03A5",
+      Phi: "\u03A6",
+      Chi: "\u03A7",
+      Psi: "\u03A8",
+      Omega: "\u03A9",
+      alpha: "\u03B1",
+      beta: "\u03B2",
+      gamma: "\u03B3",
+      delta: "\u03B4",
+      epsilon: "\u03B5",
+      zeta: "\u03B6",
+      eta: "\u03B7",
+      theta: "\u03B8",
+      iota: "\u03B9",
+      kappa: "\u03BA",
+      lambda: "\u03BB",
+      mu: "\u03BC",
+      nu: "\u03BD",
+      xi: "\u03BE",
+      omicron: "\u03BF",
+      pi: "\u03C0",
+      rho: "\u03C1",
+      sigmaf: "\u03C2",
+      sigma: "\u03C3",
+      tau: "\u03C4",
+      upsilon: "\u03C5",
+      phi: "\u03C6",
+      chi: "\u03C7",
+      psi: "\u03C8",
+      omega: "\u03C9",
+      thetasym: "\u03D1",
+      upsih: "\u03D2",
+      piv: "\u03D6",
+      ensp: "\u2002",
+      emsp: "\u2003",
+      thinsp: "\u2009",
+      zwnj: "\u200C",
+      zwj: "\u200D",
+      lrm: "\u200E",
+      rlm: "\u200F",
+      ndash: "\u2013",
+      mdash: "\u2014",
+      lsquo: "\u2018",
+      rsquo: "\u2019",
+      sbquo: "\u201A",
+      ldquo: "\u201C",
+      rdquo: "\u201D",
+      bdquo: "\u201E",
+      dagger: "\u2020",
+      Dagger: "\u2021",
+      bull: "\u2022",
+      hellip: "\u2026",
+      permil: "\u2030",
+      prime: "\u2032",
+      Prime: "\u2033",
+      lsaquo: "\u2039",
+      rsaquo: "\u203A",
+      oline: "\u203E",
+      frasl: "\u2044",
+      euro: "\u20AC",
+      image: "\u2111",
+      weierp: "\u2118",
+      real: "\u211C",
+      trade: "\u2122",
+      alefsym: "\u2135",
+      larr: "\u2190",
+      uarr: "\u2191",
+      rarr: "\u2192",
+      darr: "\u2193",
+      harr: "\u2194",
+      crarr: "\u21B5",
+      lArr: "\u21D0",
+      uArr: "\u21D1",
+      rArr: "\u21D2",
+      dArr: "\u21D3",
+      hArr: "\u21D4",
+      forall: "\u2200",
+      part: "\u2202",
+      exist: "\u2203",
+      empty: "\u2205",
+      nabla: "\u2207",
+      isin: "\u2208",
+      notin: "\u2209",
+      ni: "\u220B",
+      prod: "\u220F",
+      sum: "\u2211",
+      minus: "\u2212",
+      lowast: "\u2217",
+      radic: "\u221A",
+      prop: "\u221D",
+      infin: "\u221E",
+      ang: "\u2220",
+      and: "\u2227",
+      or: "\u2228",
+      cap: "\u2229",
+      cup: "\u222A",
+      "int": "\u222B",
+      there4: "\u2234",
+      sim: "\u223C",
+      cong: "\u2245",
+      asymp: "\u2248",
+      ne: "\u2260",
+      equiv: "\u2261",
+      le: "\u2264",
+      ge: "\u2265",
+      sub: "\u2282",
+      sup: "\u2283",
+      nsub: "\u2284",
+      sube: "\u2286",
+      supe: "\u2287",
+      oplus: "\u2295",
+      otimes: "\u2297",
+      perp: "\u22A5",
+      sdot: "\u22C5",
+      lceil: "\u2308",
+      rceil: "\u2309",
+      lfloor: "\u230A",
+      rfloor: "\u230B",
+      lang: "\u2329",
+      rang: "\u232A",
+      loz: "\u25CA",
+      spades: "\u2660",
+      clubs: "\u2663",
+      hearts: "\u2665",
+      diams: "\u2666"
     };
 
     // Ensure the condition is true, otherwise throw an error.
@@ -267,6 +535,19 @@ parseYieldExpression: true
 
     function isIdentifierPart(ch) {
         return (ch === '$') || (ch === '_') || (ch === '\\') ||
+            (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+            ((ch >= '0') && (ch <= '9')) ||
+            ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierPart.test(ch));
+    }
+
+    function isXJSIdentifierStart(ch) {
+        return (ch === '$') || (ch === '_') ||
+            (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+            ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierStart.test(ch));
+    }
+
+    function isXJSIdentifierPart(ch) {
+        return (ch === '$') || (ch === '_') || (ch === '-') ||
             (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
             ((ch >= '0') && (ch <= '9')) ||
             ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierPart.test(ch));
@@ -492,6 +773,65 @@ parseYieldExpression: true
         cu1 = ((code - 0x10000) >> 10) + 0xD800;
         cu2 = ((code - 0x10000) & 1023) + 0xDC00;
         return String.fromCharCode(cu1, cu2);
+    }
+
+    function skipXJSWhiteSpace() {
+        var ch;
+        while (index < length) {
+            ch = source[index];
+            if (isWhiteSpace(ch)) {
+                ++index;
+            } else if (isLineTerminator(ch)) {
+                if (ch === '\r' && source[index + 1] === '\n') {
+                    ++index;
+                }
+                ++lineNumber;
+                ++index;
+            } else {
+                break;
+            }
+        }
+    }
+
+    function scanXJSIdentifier() {
+        var ch, start, id = '', namespace;
+
+        ch = source[index];
+        if (!isXJSIdentifierStart(ch)) {
+            return;
+        }
+
+        start = index;
+        while (index < length) {
+            ch = source[index];
+            if (!isXJSIdentifierPart(ch)) {
+                break;
+            }
+            id += nextChar();
+        }
+
+        if (ch === ':') {
+            ++index;
+            namespace = id;
+            id = '';
+
+            while (index < length) {
+                ch = source[index];
+                if (!isXJSIdentifierPart(ch)) {
+                    break;
+                }
+                id += nextChar();
+            }
+        }
+
+        return {
+            type: Token.XJSIdentifier,
+            value: id,
+            namespace: namespace,
+            lineNumber: lineNumber,
+            lineStart: lineStart,
+            range: [start, index]
+        }
     }
 
     function scanIdentifier() {
@@ -1171,6 +1511,53 @@ parseYieldExpression: true
         };
     }
 
+    function scanXJSEntity() {
+        var ch, str = '&', count = 0;
+        expect('&');
+        while (index < length && count++ < 10) {
+            ch = nextChar();
+            str += ch;
+            if (ch === ';') {
+                break;
+            }
+        }
+
+        if (str[1] === '#' && str[2] === 'x') {
+            return String.fromCharCode(parseInt(str.substr(3), 16));
+        } else if (str[1] === '#') {
+            return String.fromCharCode(parseInt(str.substr(3), 10));
+        } else {
+            return XHTMLEntities[str.substr(1, str.length - 2)];
+        }
+    }
+
+    function scanXJSText(stopChars) {
+        var ch, str = '', start;
+        start = index;
+        while (index < length) {
+            ch = source[index];
+            if (stopChars.indexOf(ch) !== -1) {
+                break;
+            }
+            if (ch === '&') {
+                str += scanXJSEntity();
+                break;
+            }
+            ch = nextChar();
+            if (isLineTerminator(ch)) {
+                ++lineNumber;
+            }
+            str += ch;
+        }
+        return {
+            type: Token.XJSText,
+            value: str,
+            lineNumber: lineNumber,
+            lineStart: lineStart,
+            range: [start, index]
+        }
+    }
+
     function isIdentifierName(token) {
         return token.type === Token.Identifier ||
             token.type === Token.Keyword ||
@@ -1813,6 +2200,10 @@ parseYieldExpression: true
 
         if (match('/') || match('/=')) {
             return createLiteral(scanRegExp());
+        }
+
+        if (match('<')) {
+            return parseXJSElement();
         }
 
         return throwUnexpected(lex());
@@ -3827,7 +4218,147 @@ parseYieldExpression: true
         };
     }
 
-    // 15 Program
+    // 15 XJS
+
+    function parseXJSIdentifier() {
+        var token = scanXJSIdentifier();
+        if (!token) {
+            return;
+        }
+
+        return {
+            type: Syntax.XJSIdentifier,
+            name: token.value,
+            namespace: token.namespace
+        };
+    }
+
+    function parseXJSAttribute() {
+        var token, name, value, ch;
+
+        name = parseXJSIdentifier();
+
+        if (!name) {
+            return;
+        }
+
+        skipXJSWhiteSpace();
+
+        // HTML empty attribute
+        if (source[index] !== '=') {
+            return {
+                type: Syntax.XJSAttribute,
+                name: name,
+                value: {
+                    type: Syntax.Literal,
+                    value: true
+                }
+            };
+        }
+
+        index++;
+        skipXJSWhiteSpace();
+
+        ch = source[index];
+
+        if (ch === '{') {
+            expect('{');
+            value = parseExpression();
+            expect('}');
+        } else if (ch === '"' || ch === "'") {
+            index++;
+            value = createLiteral(scanXJSText([ch]));
+            index++;
+        } else {
+            throwError({}, Messages.InvalidXJSAttributeValue);
+        }
+
+        return {
+            type: Syntax.XJSAttribute,
+            name: name,
+            value: value
+        };
+    }
+
+    function parseXJSChild() {
+        var token, expr;
+        token = scanXJSText(['<', '{']);
+
+        if (token && token.value) {
+            return createLiteral(token);
+        }
+
+        if (source[index] === '<' && source[index + 1] === '/') {
+            return;
+        }
+
+        if (source[index] === '{') {
+            expect('{');
+            expr = parseExpression();
+            expect('}');
+            return expr;
+        }
+
+        return parseXJSElement();
+    }
+
+    function parseXJSElement() {
+        var token, id, closingId, attribute, attributes = [], child, children = [], selfClosing = false;
+
+        expect('<');
+
+        id = parseXJSIdentifier();
+
+        if (!id || !id.name) {
+            throwError({}, Messages.InvalidXJSTagName);
+        }
+
+        while (index < length) {
+            skipXJSWhiteSpace();
+            attribute = parseXJSAttribute();
+            if (!attribute) {
+                break;
+            }
+            attributes.push(attribute);
+        }
+
+        skipXJSWhiteSpace();
+
+        token = lookahead();
+
+        if (token.value === '/') {
+            expect('/');
+            expect('>');
+            selfClosing = true;
+        } else {
+            expect('>');
+            while (index < length) {
+                child = parseXJSChild();
+                if (!child) {
+                    break;
+                }
+                children.push(child);
+            }
+            expect('<');
+            expect('/');
+            skipXJSWhiteSpace();
+            closingId = parseXJSIdentifier();
+            if (closingId.namespace !== id.namespace || closingId.name !== id.name) {
+                throwError({}, Messages.ExpectedXJSClosingTag, id.namespace ? id.namespace + ':' + id.name : id.name);
+            }
+            expect('>');
+        }
+
+        return {
+            type: Syntax.XJSElement,
+            id: id,
+            selfClosing: selfClosing,
+            attributes: attributes,
+            children: children
+        };
+    }
+
+    // 16 Program
 
     function parseSourceElement() {
         var token = lookahead();
@@ -4384,6 +4915,10 @@ parseYieldExpression: true
             extra.parseClassDeclaration = parseClassDeclaration;
             extra.parseClassExpression = parseClassExpression;
             extra.parseClassBody = parseClassBody;
+            extra.parseXJSIdentifier = parseXJSIdentifier;
+            extra.parseXJSChild = parseXJSChild;
+            extra.parseXJSAttribute = parseXJSAttribute;
+            extra.parseXJSElement = parseXJSElement;
 
             parseAdditiveExpression = wrapTracking(extra.parseAdditiveExpression);
             parseAssignmentExpression = wrapTracking(extra.parseAssignmentExpression);
@@ -4434,6 +4969,10 @@ parseYieldExpression: true
             parseClassDeclaration = wrapTracking(extra.parseClassDeclaration);
             parseClassExpression = wrapTracking(extra.parseClassExpression);
             parseClassBody = wrapTracking(extra.parseClassBody);
+            parseXJSIdentifier = wrapTracking(parseXJSIdentifier);
+            parseXJSChild = wrapTracking(parseXJSChild);
+            parseXJSAttribute = wrapTracking(parseXJSAttribute);
+            parseXJSElement = wrapTracking(parseXJSElement);
         }
 
         if (typeof extra.tokens !== 'undefined') {
@@ -4504,6 +5043,10 @@ parseYieldExpression: true
             parseClassDeclaration = extra.parseClassDeclaration;
             parseClassExpression = extra.parseClassExpression;
             parseClassBody = extra.parseClassBody;
+            parseXJSIdentifier = extra.parseXJSIdentifier;
+            parseXJSChild = extra.parseXJSChild;
+            parseXJSAttribute = extra.parseXJSAttribute;
+            parseXJSElement = extra.parseXJSElement;
         }
 
         if (typeof extra.scanRegExp === 'function') {

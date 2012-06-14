@@ -19153,6 +19153,292 @@ data = {
 
     },
 
+    'XJS': {
+        '<a />': {
+            type: "ExpressionStatement",
+            expression: {
+                type: "XJSElement",
+                id: {
+                    type: "XJSIdentifier",
+                    name: "a",
+                    range: [1, 2],
+                    loc: {
+                        start: { line: 1, column: 1 },
+                        end: { line: 1, column: 2 }
+                    }
+                },
+                selfClosing: true,
+                attributes: [],
+                children: [],
+                range: [0, 5],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 5 }
+                }
+            },
+            range: [0, 5],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 5 }
+            }
+        },
+        '<n:a n:v />': {
+            type: "ExpressionStatement",
+            expression: {
+                type: "XJSElement",
+                id: {
+                    type: "XJSIdentifier",
+                    name: "a",
+                    namespace: "n",
+                    range: [1, 4],
+                    loc: {
+                        start: { line: 1, column: 1 },
+                        end: { line: 1, column: 4 }
+                    }
+                },
+                selfClosing: true,
+                attributes: [
+                    {
+                        type: "XJSAttribute",
+                        name: {
+                            type: "XJSIdentifier",
+                            name: "v",
+                            namespace: "n",
+                            range: [5, 8],
+                            loc: {
+                                start: { line: 1, column: 5 },
+                                end: { line: 1, column: 8 }
+                            }
+                        },
+                        value: {
+                            type: "Literal",
+                            value: true
+                        },
+                        range: [5, 9],
+                        loc: {
+                            start: { line: 1, column: 5 },
+                            end: { line: 1, column: 9 }
+                        }
+                    }
+                ],
+                children: [],
+                range: [0, 11],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 11 }
+                }
+            },
+            range: [0, 11],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 11 }
+            }
+        },
+        '<a n:foo="bar"> {value} <b><c /></b></a>': {
+            type: "ExpressionStatement",
+            expression: {
+                type: "XJSElement",
+                id: {
+                    type: "XJSIdentifier",
+                    name: "a",
+                    range: [1, 2],
+                    loc: {
+                        start: { line: 1, column: 1 },
+                        end: { line: 1, column: 2 }
+                    }
+                },
+                selfClosing: false,
+                attributes: [
+                    {
+                        type: "XJSAttribute",
+                        name: {
+                            type: "XJSIdentifier",
+                            name: "foo",
+                            namespace: "n",
+                            range: [3, 8],
+                            loc: {
+                                start: { line: 1, column: 3 },
+                                end: { line: 1, column: 8 }
+                            }
+                        },
+                        value: {
+                            type: "Literal",
+                            value: "bar",
+                            raw: "bar"
+                        },
+                        range: [3, 14],
+                        loc: {
+                            start: { line: 1, column: 3 },
+                            end: { line: 1, column: 14 }
+                        }
+                    }
+                ],
+                children: [
+                    {
+                        type: "Identifier",
+                        name: "value",
+                        range: [16, 23],
+                        loc: {
+                            start: { line: 1, column: 16 },
+                            end: { line: 1, column: 23 }
+                        }
+                    },
+                    {
+                        type: "XJSElement",
+                        id: {
+                            type: "XJSIdentifier",
+                            name: "b",
+                            range: [25, 26],
+                            loc: {
+                                start: { line: 1, column: 25 },
+                                end: { line: 1, column: 26 }
+                            }
+                        },
+                        selfClosing: false,
+                        attributes: [],
+                        children: [
+                            {
+                                type: "XJSElement",
+                                id: {
+                                    type: "XJSIdentifier",
+                                    name: "c",
+                                    range: [28, 29],
+                                    loc: {
+                                        start: { line: 1, column: 28 },
+                                        end: { line: 1, column: 29 }
+                                    }
+                                },
+                                selfClosing: true,
+                                attributes: [],
+                                children: [],
+                                range: [27, 32],
+                                loc: {
+                                    start: { line: 1, column: 27 },
+                                    end: { line: 1, column: 32 }
+                                }
+                            }
+                        ],
+                        range: [24, 36],
+                        loc: {
+                            start: { line: 1, column: 24 },
+                            end: { line: 1, column: 36 }
+                        }
+                    }
+                ],
+                range: [0, 40],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 40 }
+                }
+            },
+            range: [0, 40],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 40 }
+            }
+        },
+        '<a b={" "} c=" " d="&amp;" />': {
+            type: "ExpressionStatement",
+            expression: {
+                type: "XJSElement",
+                id: {
+                    type: "XJSIdentifier",
+                    name: "a",
+                    range: [1, 2],
+                    loc: {
+                        start: { line: 1, column: 1 },
+                        end: { line: 1, column: 2 }
+                    }
+                },
+                selfClosing: true,
+                attributes: [
+                    {
+                        type: "XJSAttribute",
+                        name: {
+                            type: "XJSIdentifier",
+                            name: "b",
+                            range: [3, 4],
+                            loc: {
+                                start: { line: 1, column: 3 },
+                                end: { line: 1, column: 4 }
+                            }
+                        },
+                        value: {
+                            type: "Literal",
+                            value: " ",
+                            raw: "\" \"",
+                            range: [6, 9],
+                            loc: {
+                                start: { line: 1, column: 6 },
+                                end: { line: 1, column: 9 }
+                            }
+                        },
+                        range: [3, 10],
+                        loc: {
+                            start: { line: 1, column: 3 },
+                            end: { line: 1, column: 10 }
+                        }
+                    },
+                    {
+                        type: "XJSAttribute",
+                        name: {
+                            type: "XJSIdentifier",
+                            name: "c",
+                            range: [11, 12],
+                            loc: {
+                                start: { line: 1, column: 11 },
+                                end: { line: 1, column: 12 }
+                            }
+                        },
+                        value: {
+                            type: "Literal",
+                            value: " ",
+                            raw: " "
+                        },
+                        range: [11, 16],
+                        loc: {
+                            start: { line: 1, column: 11 },
+                            end: { line: 1, column: 16 }
+                        }
+                    },
+                    {
+                        type: "XJSAttribute",
+                        name: {
+                            type: "XJSIdentifier",
+                            name: "d",
+                            range: [17, 18],
+                            loc: {
+                                start: { line: 1, column: 17 },
+                                end: { line: 1, column: 18 }
+                            }
+                        },
+                        value: {
+                            type: "Literal",
+                            value: "&",
+                            raw: "&amp;"
+                        },
+                        range: [17, 26],
+                        loc: {
+                            start: { line: 1, column: 17 },
+                            end: { line: 1, column: 26 }
+                        }
+                    }
+                ],
+                children: [],
+                range: [0, 29],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 29 }
+                }
+            },
+            range: [0, 29],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 29 }
+            }
+        }
+    },
+
     'Invalid syntax': {
 
         '{': {
@@ -20990,6 +21276,48 @@ data = {
             column: 18,
             message: 'Error: Line 1: Missing yield in generator'
         },
+        
+        '</>': {
+            index: 1,
+            lineNumber: 1,
+            column: 2,
+            message: 'Error: Line 1: XJS tag name can not be empty'
+        },
+
+        '<a: />': {
+            index: 3,
+            lineNumber: 1,
+            column: 4,
+            message: 'Error: Line 1: XJS tag name can not be empty'
+        },
+
+        '<:a />': {
+            index: 1,
+            lineNumber: 1,
+            column: 2,
+            message: 'Error: Line 1: XJS tag name can not be empty'
+        },
+
+        '<a b=d />': {
+            index: 5,
+            lineNumber: 1,
+            column: 6,
+            message: 'Error: Line 1: XJS value should be either an expression or a quoted XJS text'
+        },
+
+        '<a>': {
+            index: 3,
+            lineNumber: 1,
+            column: 4,
+            message: 'Error: Line 1: Unexpected end of input'
+        },
+
+        '<a></b>': {
+            index: 6,
+            lineNumber: 1,
+            column: 7,
+            message: 'Error: Line 1: Expected corresponding XJS closing tag for a'
+        },
 
         'function* test () { }': {
             index: 21,
@@ -21201,7 +21529,11 @@ data = {
                 VariableDeclarator: 'VariableDeclarator',
                 WhileStatement: 'WhileStatement',
                 WithStatement: 'WithStatement',
-                YieldExpression: 'YieldExpression'
+                YieldExpression: 'YieldExpression',
+                XJSIdentifier: 'XJSIdentifier',
+                XJSElement: 'XJSElement',
+                XJSAttribute: 'XJSAttribute',
+                XJSText: 'XJSText'
             }
         }
 
