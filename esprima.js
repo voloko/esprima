@@ -65,7 +65,10 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
         NullLiteral: 5,
         NumericLiteral: 6,
         Punctuator: 7,
-        StringLiteral: 8
+        StringLiteral: 8,
+
+        XJSIdentifier: 9,
+        XJSText: 10
     };
 
     TokenName = {};
@@ -77,6 +80,8 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
     TokenName[Token.NumericLiteral] = 'Numeric';
     TokenName[Token.Punctuator] = 'Punctuator';
     TokenName[Token.StringLiteral] = 'String';
+    TokenName[Token.XJSIdentifier] = 'XJSIdentifier';
+    TokenName[Token.XJSText] = 'XJSText';
 
     Syntax = {
         ArrayExpression: 'ArrayExpression',
@@ -134,7 +139,13 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
         VariableDeclaration: 'VariableDeclaration',
         VariableDeclarator: 'VariableDeclarator',
         WhileStatement: 'WhileStatement',
-        WithStatement: 'WithStatement'
+        WithStatement: 'WithStatement',
+
+        XJSIdentifier: 'XJSIdentifier',
+        XJSElement: 'XJSElement',
+        XJSAttribute: 'XJSAttribute',
+        XJSText: 'XJSText'
+
     };
 
     PropertyKind = {
@@ -180,6 +191,11 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
         StrictReservedWord:  'Use of future reserved word in strict mode',
         StrictSuperOutsideClassElement: 'Super keyword is only allowed inside class elements',
         NoFromAfterImport: 'Missing from after import',
+
+        InvalidXJSEntity: 'Invalid XJS entity %0',
+        InvalidXJSTagName: 'XJS tag name can not be empty',
+        InvalidXJSAttributeValue: 'XJS value should be either an expression or a quoted XJS text',
+        ExpectedXJSClosingTag: 'Expected corresponding XJS closing tag for %0'
     };
 
     // See also tools/generate-unicode-regex.py.
@@ -247,6 +263,19 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
 
     function isIdentifierPart(ch) {
         return (ch === '$') || (ch === '_') || (ch === '\\') ||
+            (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+            ((ch >= '0') && (ch <= '9')) ||
+            ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierPart.test(ch));
+    }
+
+    function isXJSIdentifierStart(ch) {
+        return (ch === '$') || (ch === '_') ||
+            (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+            ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierStart.test(ch));
+    }
+
+    function isXJSIdentifierPart(ch) {
+        return (ch === '$') || (ch === '_') || (ch === '-') ||
             (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
             ((ch >= '0') && (ch <= '9')) ||
             ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierPart.test(ch));
@@ -440,6 +469,65 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
             }
         }
         return String.fromCharCode(code);
+    }
+
+    function skipXJSWhiteSpace() {
+        var ch;
+        while (index < length) {
+            ch = source[index];
+            if (isWhiteSpace(ch)) {
+                ++index;
+            } else if (isLineTerminator(ch)) {
+                if (ch === '\r' && source[index + 1] === '\n') {
+                    ++index;
+                }
+                ++lineNumber;
+                ++index;
+            } else {
+                break;
+            }
+        }
+    }
+
+    function scanXJSIdentifier() {
+        var ch, start, id = '', namespace;
+
+        ch = source[index];
+        if (!isXJSIdentifierStart(ch)) {
+            return;
+        }
+
+        start = index;
+        while (index < length) {
+            ch = source[index];
+            if (!isXJSIdentifierPart(ch)) {
+                break;
+            }
+            id += nextChar();
+        }
+
+        if (ch === ':') {
+            ++index;
+            namespace = id;
+            id = '';
+
+            while (index < length) {
+                ch = source[index];
+                if (!isXJSIdentifierPart(ch)) {
+                    break;
+                }
+                id += nextChar();
+            }
+        }
+
+        return {
+            type: Token.XJSIdentifier,
+            value: id,
+            namespace: namespace,
+            lineNumber: lineNumber,
+            lineStart: lineStart,
+            range: [start, index]
+        }
     }
 
     function scanIdentifier() {
@@ -1114,6 +1202,64 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
         };
     }
 
+    function scanXJSEntity() {
+        var ch, str = '&', count = 0;
+        expect('&');
+        while (index < length && count++ < 10) {
+            ch = nextChar();
+            str += ch;
+            if (ch === ';') {
+                break;
+            }
+        }
+
+        if (str === '&amp;') {
+            return '&';
+        } else if (str === '&lt;') {
+            return '<';
+        } else if (str === '&gt;') {
+            return '>';
+        } else if (str === '&quot;') {
+            return '"';
+        } else if (str === '&apos;') {
+            return "'";
+        } else if (str[1] === '#' && str[2] === 'x') {
+            return String.fromCharCode(parseInt(str.substr(3), 16));
+        } else if (str[1] === '#') {
+            return String.fromCharCode(parseInt(str.substr(3), 10));
+        } else {
+            throw throwError({}, Messages.InvalidXJSEntity, str);
+        }
+    }
+
+    function scanXJSText(stopChars) {
+        var ch, str = '', start;
+        start = index;
+        while (index < length) {
+            ch = source[index];
+            if (stopChars.indexOf(ch) !== -1) {
+                break;
+            }
+            if (ch === '&') {
+                str += scanXJSEntity();
+                break;
+            }
+            ch = nextChar();
+            if (isLineTerminator(ch)) {
+                ++lineNumber;
+            } else {
+                str += ch;
+            }
+        }
+        return {
+            type: Token.XJSText,
+            value: str,
+            lineNumber: lineNumber,
+            lineStart: lineStart,
+            range: [start, index]
+        }
+    }
+
     function isIdentifierName(token) {
         return token.type === Token.Identifier ||
             token.type === Token.Keyword ||
@@ -1761,6 +1907,10 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
             if (match('{')) {
                 return parseSealedObjectInitialiser();
             }
+        }
+
+        if (match('<')) {
+            return parseXJSElement();
         }
 
         return throwUnexpected(lex());
@@ -3724,8 +3874,148 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
             subclassOf: subclassOf
         };
     }
+    
+    // 15 XJS
 
-    // 15 Program
+    function parseXJSIdentifier() {
+        var token = scanXJSIdentifier();
+        if (!token) {
+            return;
+        }
+
+        return {
+            type: Syntax.XJSIdentifier,
+            name: token.value,
+            namespace: token.namespace
+        };
+    }
+
+    function parseXJSAttribute() {
+        var token, name, value, ch;
+
+        name = parseXJSIdentifier();
+
+        if (!name) {
+            return;
+        }
+
+        skipXJSWhiteSpace();
+
+        // HTML5 attribute without value
+        if (source[index] !== '=') {
+            return {
+                type: Syntax.XJSAttribute,
+                name: name,
+                value: {
+                    type: Syntax.Literal,
+                    value: true
+                }
+            };
+        }
+
+        index++;
+        skipXJSWhiteSpace();
+
+        ch = source[index];
+
+        if (ch === '{') {
+            expect('{');
+            value = parseExpression();
+            expect('}');
+        } else if (ch === '"' || ch === "'") {
+            index++;
+            value = createLiteral(scanXJSText([ch]));
+            index++;
+        } else {
+            throwError({}, Messages.InvalidXJSAttributeValue);
+        }
+
+        return {
+            type: Syntax.XJSAttribute,
+            name: name,
+            value: value
+        };
+    }
+
+    function parseXJSChild() {
+        var token, expr;
+        token = scanXJSText(['<', '{']);
+
+        if (token && token.value) {
+            return createLiteral(token);
+        }
+
+        if (source[index] === '<' && source[index + 1] === '/') {
+            return;
+        }
+
+        if (source[index] === '{') {
+            expect('{');
+            expr = parseExpression();
+            expect('}');
+            return expr;
+        }
+
+        return parseXJSElement();
+    }
+
+    function parseXJSElement() {
+        var token, id, closingId, attribute, attributes = [], child, children = [], selfClosing = false;
+
+        expect('<');
+
+        id = parseXJSIdentifier();
+
+        if (!id || !id.name) {
+            throwError({}, Messages.InvalidXJSTagName);
+        }
+
+        while (index < length) {
+            skipXJSWhiteSpace();
+            attribute = parseXJSAttribute();
+            if (!attribute) {
+                break;
+            }
+            attributes.push(attribute);
+        }
+
+        skipXJSWhiteSpace();
+
+        token = lookahead();
+
+        if (token.value === '/') {
+            expect('/');
+            expect('>');
+            selfClosing = true;
+        } else {
+            expect('>');
+            while (index < length) {
+                child = parseXJSChild();
+                if (!child) {
+                    break;
+                }
+                children.push(child);
+            }
+            expect('<');
+            expect('/');
+            skipXJSWhiteSpace();
+            closingId = parseXJSIdentifier();
+            if (closingId.namespace !== id.namespace || closingId.name !== id.name) {
+                throwError({}, Messages.ExpectedXJSClosingTag, id.namespace ? id.namespace + ':' + id.name : id.name);
+            }
+            expect('>');
+        }
+
+        return {
+            type: Syntax.XJSElement,
+            id: id,
+            selfClosing: selfClosing,
+            attributes: attributes,
+            children: children
+        };
+    }
+
+    // 16 Program
 
     function parseSourceElement() {
         var token = lookahead();
@@ -4179,6 +4469,10 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
             extra.parseClassDeclaration = parseClassDeclaration;
             extra.parseClassBody = parseClassBody;
             extra.parseClassMethodExpression = parseClassMethodExpression;
+            extra.parseXJSIdentifier = parseXJSIdentifier;
+            extra.parseXJSChild = parseXJSChild;
+            extra.parseXJSAttribute = parseXJSAttribute;
+            extra.parseXJSElement = parseXJSElement;
 
             parseAdditiveExpression = wrapTracking(extra.parseAdditiveExpression);
             parseAssignmentExpression = wrapTracking(extra.parseAssignmentExpression);
@@ -4231,6 +4525,10 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
             parseClassDeclaration = wrapTracking(extra.parseClassDeclaration);
             parseClassBody = wrapTracking(extra.parseClassBody);
             parseClassMethodExpression = wrapTracking(extra.parseClassMethodExpression);
+            parseXJSIdentifier = wrapTracking(parseXJSIdentifier);
+            parseXJSChild = wrapTracking(parseXJSChild);
+            parseXJSAttribute = wrapTracking(parseXJSAttribute);
+            parseXJSElement = wrapTracking(parseXJSElement);
         }
 
         if (typeof extra.tokens !== 'undefined') {
@@ -4303,6 +4601,10 @@ parseStatement: true, parseSourceElement: true, parseModuleBlock: true, parseCon
             parseClassDeclaration = extra.parseClassDeclaration;
             parseClassBody = extra.parseClassBody;
             parseClassMethodExpression = extra.parseClassMethodExpression;
+            parseXJSIdentifier = extra.parseXJSIdentifier;
+            parseXJSChild = extra.parseXJSChild;
+            parseXJSAttribute = extra.parseXJSAttribute;
+            parseXJSElement = extra.parseXJSElement;
         }
 
         if (typeof extra.scanRegExp === 'function') {
