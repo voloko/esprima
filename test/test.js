@@ -16349,6 +16349,70 @@ data = {
             }
         },
 
+        'module foo { module bar = baz }': {
+            type: "ModuleDeclaration",
+            id: {
+                type: "Identifier",
+                name: "foo",
+                range: [7, 10],
+                loc: {
+                    start: { line: 1, column: 7 },
+                    end: { line: 1, column: 10 }
+                }
+            },
+            body: {
+                type: "BlockStatement",
+                body: [
+                    {
+                        type: "ModuleDeclaration",
+                        id: {
+                            type: "Identifier",
+                            name: "bar",
+                            range: [20, 23],
+                            loc: {
+                                start: { line: 1, column: 20 },
+                                end: { line: 1, column: 23 }
+                            }
+                        },
+                        from: {
+                            type: "Path",
+                            body: [
+                                {
+                                    type: "Identifier",
+                                    name: "baz",
+                                    range: [26, 29],
+                                    loc: {
+                                        start: { line: 1, column: 26 },
+                                        end: { line: 1, column: 29 }
+                                    }
+                                }
+                            ],
+                            range: [26, 29],
+                            loc: {
+                                start: { line: 1, column: 26 },
+                                end: { line: 1, column: 29 }
+                            }
+                        },
+                        range: [13, 30],
+                        loc: {
+                            start: { line: 1, column: 13 },
+                            end: { line: 1, column: 30 }
+                        }
+                    }
+                ],
+                range: [11, 31],
+                loc: {
+                    start: { line: 1, column: 11 },
+                    end: { line: 1, column: 31 }
+                }
+            },
+            range: [0, 31],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 31 }
+            }
+        },
+
         'module MilkyWay = "Universe/MilkyWay"': {
             type: 'ModuleDeclaration',
             id: {
