@@ -1,1 +1,0 @@
-var x = <space:a-b hello="b" blah={value ? x : y}></space:a-b>;

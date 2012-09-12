@@ -19158,7 +19158,7 @@ data = {
             type: "ExpressionStatement",
             expression: {
                 type: "XJSElement",
-                id: {
+                name: {
                     type: "XJSIdentifier",
                     name: "a",
                     range: [1, 2],
@@ -19168,6 +19168,25 @@ data = {
                     }
                 },
                 selfClosing: true,
+                openingElement: {
+                  type: "XJSOpeningElement",
+                  name: {
+                      type: "XJSIdentifier",
+                      name: "a",
+                      range: [1, 2],
+                      loc: {
+                          start: { line: 1, column: 1 },
+                          end: { line: 1, column: 2 }
+                      }
+                  },
+                  selfClosing: true,
+                  attributes: [],
+                  range: [0, 5],
+                  loc: {
+                      start: { line: 1, column: 0 },
+                      end: { line: 1, column: 5 }
+                  }
+                },
                 attributes: [],
                 children: [],
                 range: [0, 5],
@@ -19186,7 +19205,7 @@ data = {
             type: "ExpressionStatement",
             expression: {
                 type: "XJSElement",
-                id: {
+                name: {
                     type: "XJSIdentifier",
                     name: "a",
                     namespace: "n",
@@ -19197,6 +19216,45 @@ data = {
                     }
                 },
                 selfClosing: true,
+                openingElement: {
+                  type: "XJSOpeningElement",
+                  name: {
+                      type: "XJSIdentifier",
+                      name: "a",
+                      namespace: "n",
+                      range: [1, 4],
+                      loc: {
+                          start: { line: 1, column: 1 },
+                          end: { line: 1, column: 4 }
+                      }
+                  },
+                  selfClosing: true,
+                  attributes: [
+                      {
+                          type: "XJSAttribute",
+                          name: {
+                              type: "XJSIdentifier",
+                              name: "v",
+                              namespace: "n",
+                              range: [5, 8],
+                              loc: {
+                                  start: { line: 1, column: 5 },
+                                  end: { line: 1, column: 8 }
+                              }
+                          },
+                          range: [5, 9],
+                          loc: {
+                              start: { line: 1, column: 5 },
+                              end: { line: 1, column: 9 }
+                          }
+                      }
+                  ],
+                  range: [0, 11],
+                  loc: {
+                      start: { line: 1, column: 0 },
+                      end: { line: 1, column: 11 }
+                  }
+                },
                 attributes: [
                     {
                         type: "XJSAttribute",
@@ -19209,10 +19267,6 @@ data = {
                                 start: { line: 1, column: 5 },
                                 end: { line: 1, column: 8 }
                             }
-                        },
-                        value: {
-                            type: "Literal",
-                            value: true
                         },
                         range: [5, 9],
                         loc: {
@@ -19238,7 +19292,7 @@ data = {
             type: "ExpressionStatement",
             expression: {
                 type: "XJSElement",
-                id: {
+                name: {
                     type: "XJSIdentifier",
                     name: "a",
                     range: [1, 2],
@@ -19248,6 +19302,71 @@ data = {
                     }
                 },
                 selfClosing: false,
+                openingElement: {
+                    type: "XJSOpeningElement",
+                    name: {
+                        type: "XJSIdentifier",
+                        name: "a",
+                        range: [1, 2],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 2 }
+                        }
+                    },
+                    selfClosing: false,
+                    attributes: [
+                        {
+                            type: "XJSAttribute",
+                            name: {
+                                type: "XJSIdentifier",
+                                name: "foo",
+                                namespace: "n",
+                                range: [3, 8],
+                                loc: {
+                                    start: { line: 1, column: 3 },
+                                    end: { line: 1, column: 8 }
+                                }
+                            },
+                            value: {
+                                type: "Literal",
+                                value: "bar",
+                                raw: "bar",
+                                range: [9, 14],
+                                loc: {
+                                    start: { line: 1, column: 9 },
+                                    end: { line: 1, column: 14 }
+                                }
+                            },
+                            range: [3, 14],
+                            loc: {
+                                start: { line: 1, column: 3 },
+                                end: { line: 1, column: 14 }
+                            }
+                        }
+                    ],
+                    range: [0, 15],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 15 }
+                    }
+                },
+                closingElement: {
+                    type: "XJSClosingElement",
+                    name: {
+                        type: "XJSIdentifier",
+                        name: "a",
+                        range: [38, 39],
+                        loc: {
+                            start: { line: 1, column: 38 },
+                            end: { line: 1, column: 39 }
+                        }
+                    },
+                    range: [36, 40],
+                    loc: {
+                        start: { line: 1, column: 36 },
+                        end: { line: 1, column: 40 }
+                    }
+                },
                 attributes: [
                     {
                         type: "XJSAttribute",
@@ -19264,7 +19383,12 @@ data = {
                         value: {
                             type: "Literal",
                             value: "bar",
-                            raw: "bar"
+                            raw: "bar",
+                            range: [9, 14],
+                            loc: {
+                                start: { line: 1, column: 9 },
+                                end: { line: 1, column: 14 }
+                            }
                         },
                         range: [3, 14],
                         loc: {
@@ -19275,8 +19399,26 @@ data = {
                 ],
                 children: [
                     {
-                        type: "Identifier",
-                        name: "value",
+                        type: "Literal",
+                        value: " ",
+                        raw: " ",
+                        range: [15, 16],
+                        loc: {
+                            start: { line: 1, column: 15 },
+                            end: { line: 1, column: 16 }
+                        }
+                    },
+                    {
+                        type: "XJSExpression",
+                        value: {
+                            type: "Identifier",
+                            name: "value",
+                            range: [17, 22],
+                            loc: {
+                                start: { line: 1, column: 17 },
+                                end: { line: 1, column: 22 }
+                            }
+                        },
                         range: [16, 23],
                         loc: {
                             start: { line: 1, column: 16 },
@@ -19284,8 +19426,18 @@ data = {
                         }
                     },
                     {
+                        type: "Literal",
+                        value: " ",
+                        raw: " ",
+                        range: [23, 24],
+                        loc: {
+                            start: { line: 1, column: 23 },
+                            end: { line: 1, column: 24 }
+                        }
+                    },
+                    {
                         type: "XJSElement",
-                        id: {
+                        name: {
                             type: "XJSIdentifier",
                             name: "b",
                             range: [25, 26],
@@ -19295,11 +19447,47 @@ data = {
                             }
                         },
                         selfClosing: false,
+                        openingElement: {
+                            type: "XJSOpeningElement",
+                            name: {
+                                type: "XJSIdentifier",
+                                name: "b",
+                                range: [25, 26],
+                                loc: {
+                                    start: { line: 1, column: 25 },
+                                    end: { line: 1, column: 26 }
+                                }
+                            },
+                            selfClosing: false,
+                            attributes: [],
+                            range: [24, 27],
+                            loc: {
+                                start: { line: 1, column: 24 },
+                                end: { line: 1, column: 27 }
+                            }
+                        },
+                        closingElement: {
+                            type: "XJSClosingElement",
+                            name: {
+                                type: "XJSIdentifier",
+                                name: "b",
+                                range: [34, 35],
+                                loc: {
+                                    start: { line: 1, column: 34 },
+                                    end: { line: 1, column: 35 }
+                                }
+                            },
+                            range: [32, 36],
+                            loc: {
+                                start: { line: 1, column: 32 },
+                                end: { line: 1, column: 36 }
+                            }
+                        },
                         attributes: [],
                         children: [
                             {
                                 type: "XJSElement",
-                                id: {
+                                name: {
                                     type: "XJSIdentifier",
                                     name: "c",
                                     range: [28, 29],
@@ -19309,6 +19497,25 @@ data = {
                                     }
                                 },
                                 selfClosing: true,
+                                openingElement: {
+                                    type: "XJSOpeningElement",
+                                    name: {
+                                        type: "XJSIdentifier",
+                                        name: "c",
+                                        range: [28, 29],
+                                        loc: {
+                                            start: { line: 1, column: 28 },
+                                            end: { line: 1, column: 29 }
+                                        }
+                                    },
+                                    selfClosing: true,
+                                    attributes: [],
+                                    range: [27, 32],
+                                    loc: {
+                                        start: { line: 1, column: 27 },
+                                        end: { line: 1, column: 32 }
+                                    }
+                                },
                                 attributes: [],
                                 children: [],
                                 range: [27, 32],
@@ -19341,7 +19548,7 @@ data = {
             type: "ExpressionStatement",
             expression: {
                 type: "XJSElement",
-                id: {
+                name: {
                     type: "XJSIdentifier",
                     name: "a",
                     range: [1, 2],
@@ -19351,6 +19558,115 @@ data = {
                     }
                 },
                 selfClosing: true,
+                openingElement: {
+                    type: "XJSOpeningElement",
+                    name: {
+                        type: "XJSIdentifier",
+                        name: "a",
+                        range: [1, 2],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 2 }
+                        }
+                    },
+                    selfClosing: true,
+                    attributes: [
+                        {
+                            type: "XJSAttribute",
+                            name: {
+                                type: "XJSIdentifier",
+                                name: "b",
+                                range: [3, 4],
+                                loc: {
+                                    start: { line: 1, column: 3 },
+                                    end: { line: 1, column: 4 }
+                                }
+                            },
+                            value: {
+                                type: "XJSExpression",
+                                value: {
+                                    type: "Literal",
+                                    value: " ",
+                                    raw: "\" \"",
+                                    range: [6, 9],
+                                    loc: {
+                                        start: { line: 1, column: 6 },
+                                        end: { line: 1, column: 9 }
+                                    }
+                                },
+                                range: [5, 10],
+                                loc: {
+                                    start: { line: 1, column: 5 },
+                                    end: { line: 1, column: 10 }
+                                }
+                            },
+                            range: [3, 10],
+                            loc: {
+                                start: { line: 1, column: 3 },
+                                end: { line: 1, column: 10 }
+                            }
+                        },
+                        {
+                            type: "XJSAttribute",
+                            name: {
+                                type: "XJSIdentifier",
+                                name: "c",
+                                range: [11, 12],
+                                loc: {
+                                    start: { line: 1, column: 11 },
+                                    end: { line: 1, column: 12 }
+                                }
+                            },
+                            value: {
+                                type: "Literal",
+                                value: " ",
+                                raw: " ",
+                                range: [13, 16],
+                                loc: {
+                                    start: { line: 1, column: 13 },
+                                    end: { line: 1, column: 16 }
+                                }
+                            },
+                            range: [11, 16],
+                            loc: {
+                                start: { line: 1, column: 11 },
+                                end: { line: 1, column: 16 }
+                            }
+                        },
+                        {
+                            type: "XJSAttribute",
+                            name: {
+                                type: "XJSIdentifier",
+                                name: "d",
+                                range: [17, 18],
+                                loc: {
+                                    start: { line: 1, column: 17 },
+                                    end: { line: 1, column: 18 }
+                                }
+                            },
+                            value: {
+                                type: "Literal",
+                                value: "&",
+                                raw: "&amp;",
+                                range: [19, 26],
+                                loc: {
+                                    start: { line: 1, column: 19 },
+                                    end: { line: 1, column: 26 }
+                                }
+                            },
+                            range: [17, 26],
+                            loc: {
+                                start: { line: 1, column: 17 },
+                                end: { line: 1, column: 26 }
+                            }
+                        }
+                    ],
+                    range: [0, 29],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 29 }
+                    }
+                },
                 attributes: [
                     {
                         type: "XJSAttribute",
@@ -19364,13 +19680,21 @@ data = {
                             }
                         },
                         value: {
-                            type: "Literal",
-                            value: " ",
-                            raw: "\" \"",
-                            range: [6, 9],
+                            type: "XJSExpression",
+                            value: {
+                                type: "Literal",
+                                value: " ",
+                                raw: "\" \"",
+                                range: [6, 9],
+                                loc: {
+                                    start: { line: 1, column: 6 },
+                                    end: { line: 1, column: 9 }
+                                }
+                            },
+                            range: [5, 10],
                             loc: {
-                                start: { line: 1, column: 6 },
-                                end: { line: 1, column: 9 }
+                                start: { line: 1, column: 5 },
+                                end: { line: 1, column: 10 }
                             }
                         },
                         range: [3, 10],
@@ -19393,7 +19717,12 @@ data = {
                         value: {
                             type: "Literal",
                             value: " ",
-                            raw: " "
+                            raw: " ",
+                            range: [13, 16],
+                            loc: {
+                                start: { line: 1, column: 13 },
+                                end: { line: 1, column: 16 }
+                            }
                         },
                         range: [11, 16],
                         loc: {
@@ -19415,7 +19744,12 @@ data = {
                         value: {
                             type: "Literal",
                             value: "&",
-                            raw: "&amp;"
+                            raw: "&amp;",
+                            range: [19, 26],
+                            loc: {
+                                start: { line: 1, column: 19 },
+                                end: { line: 1, column: 26 }
+                            }
                         },
                         range: [17, 26],
                         loc: {
@@ -21313,9 +21647,9 @@ data = {
         },
 
         '<a></b>': {
-            index: 6,
+            index: 7,
             lineNumber: 1,
-            column: 7,
+            column: 8,
             message: 'Error: Line 1: Expected corresponding XJS closing tag for a'
         },
 
@@ -21531,8 +21865,11 @@ data = {
                 WithStatement: 'WithStatement',
                 YieldExpression: 'YieldExpression',
                 XJSIdentifier: 'XJSIdentifier',
+                XJSExpression: "XJSExpression",
                 XJSElement: 'XJSElement',
-                XJSAttribute: 'XJSAttribute',
+                XJSClosingElement: 'XJSClosingElement',
+                XJSOpeningElement: 'XJSOpeningElement',
+                XJSAttribute: "XJSAttribute",
                 XJSText: 'XJSText'
             }
         }

@@ -160,7 +160,10 @@ parseYieldExpression: true
         WithStatement: 'WithStatement',
         YieldExpression: 'YieldExpression',
         XJSIdentifier: 'XJSIdentifier',
+        XJSExpression: 'XJSExpression',
         XJSElement: 'XJSElement',
+        XJSClosingElement: 'XJSClosingElement',
+        XJSOpeningElement: 'XJSOpeningElement',
         XJSAttribute: 'XJSAttribute',
         XJSText: 'XJSText'
     };
@@ -1541,7 +1544,7 @@ parseYieldExpression: true
             }
             if (ch === '&') {
                 str += scanXJSEntity();
-                break;
+                continue;
             }
             ch = nextChar();
             if (isLineTerminator(ch)) {
@@ -4233,8 +4236,33 @@ parseYieldExpression: true
         };
     }
 
+    function parseXJSAttributeValue() {
+        var ch = source[index], value;
+        if (ch === '{') {
+            return parseXJSExpression();
+        } else if (ch === '"' || ch === "'") {
+            index++;
+            value = createLiteral(scanXJSText([ch]));
+            index++;
+        } else {
+            throwError({}, Messages.InvalidXJSAttributeValue);
+        }
+        return value;
+    }
+
+    function parseXJSExpression() {
+        var value;
+        expect('{');
+        value = parseExpression();
+        expect('}');
+        return {
+            type: Syntax.XJSExpression,
+            value: value
+        };
+    }
+
     function parseXJSAttribute() {
-        var token, name, value, ch;
+        var token, name, value;
 
         name = parseXJSIdentifier();
 
@@ -4248,35 +4276,17 @@ parseYieldExpression: true
         if (source[index] !== '=') {
             return {
                 type: Syntax.XJSAttribute,
-                name: name,
-                value: {
-                    type: Syntax.Literal,
-                    value: true
-                }
+                name: name
             };
         }
 
         index++;
         skipXJSWhiteSpace();
 
-        ch = source[index];
-
-        if (ch === '{') {
-            expect('{');
-            value = parseExpression();
-            expect('}');
-        } else if (ch === '"' || ch === "'") {
-            index++;
-            value = createLiteral(scanXJSText([ch]));
-            index++;
-        } else {
-            throwError({}, Messages.InvalidXJSAttributeValue);
-        }
-
         return {
             type: Syntax.XJSAttribute,
             name: name,
-            value: value
+            value: parseXJSAttributeValue()
         };
     }
 
@@ -4293,23 +4303,33 @@ parseYieldExpression: true
         }
 
         if (source[index] === '{') {
-            expect('{');
-            expr = parseExpression();
-            expect('}');
-            return expr;
+            return parseXJSExpression();
         }
 
         return parseXJSElement();
     }
 
-    function parseXJSElement() {
-        var token, id, closingId, attribute, attributes = [], child, children = [], selfClosing = false;
+    function parseXJSClosingElement() {
+        var name;
+        expect('<');
+        expect('/');
+        skipXJSWhiteSpace();
+        name = parseXJSIdentifier();
+        expect('>');
+        return {
+            type: Syntax.XJSClosingElement,
+            name: name
+        };
+    }
+
+    function parseXJSOpeningElement() {
+        var token, name, attribute, attributes = [], selfClosing = false;
 
         expect('<');
 
-        id = parseXJSIdentifier();
+        name = parseXJSIdentifier();
 
-        if (!id || !id.name) {
+        if (!name || !name.name) {
             throwError({}, Messages.InvalidXJSTagName);
         }
 
@@ -4332,6 +4352,21 @@ parseYieldExpression: true
             selfClosing = true;
         } else {
             expect('>');
+        }
+        return {
+            type: Syntax.XJSOpeningElement,
+            name: name,
+            selfClosing: selfClosing,
+            attributes: attributes
+        };
+    }
+
+    function parseXJSElement() {
+        var openingElement, closingElement, child, children = [];
+
+        openingElement = parseXJSOpeningElement();
+
+        if (!openingElement.selfClosing) {
             while (index < length) {
                 child = parseXJSChild();
                 if (!child) {
@@ -4339,21 +4374,19 @@ parseYieldExpression: true
                 }
                 children.push(child);
             }
-            expect('<');
-            expect('/');
-            skipXJSWhiteSpace();
-            closingId = parseXJSIdentifier();
-            if (closingId.namespace !== id.namespace || closingId.name !== id.name) {
-                throwError({}, Messages.ExpectedXJSClosingTag, id.namespace ? id.namespace + ':' + id.name : id.name);
+            closingElement = parseXJSClosingElement();
+            if (closingElement.name.namespace !== openingElement.name.namespace || closingElement.name.name !== openingElement.name.name) {
+                throwError({}, Messages.ExpectedXJSClosingTag, openingElement.name.namespace ? openingElement.name.namespace + ':' + openingElement.name.name : openingElement.name.name);
             }
-            expect('>');
         }
 
         return {
             type: Syntax.XJSElement,
-            id: id,
-            selfClosing: selfClosing,
-            attributes: attributes,
+            name: openingElement.name,
+            selfClosing: openingElement.selfClosing,
+            openingElement: openingElement,
+            closingElement: closingElement,
+            attributes: openingElement.attributes,
             children: children
         };
     }
@@ -4764,7 +4797,7 @@ parseYieldExpression: true
         };
     }
 
-    function wrapTrackingFunction(range, loc) {
+    function wrapTrackingFunction(range, loc, preserveWhitespace) {
 
         return function (parseFunction) {
 
@@ -4795,7 +4828,9 @@ parseYieldExpression: true
             return function () {
                 var node, rangeInfo, locInfo;
 
-                skipComment();
+                if (!preserveWhitespace) {
+                    skipComment();
+                }
                 rangeInfo = [index, 0];
                 locInfo = {
                     start: {
@@ -4850,7 +4885,7 @@ parseYieldExpression: true
 
     function patch() {
 
-        var wrapTracking;
+        var wrapTracking, wrapTrackingPreserveWhitespace;
 
         if (extra.comments) {
             extra.skipComment = skipComment;
@@ -4865,6 +4900,8 @@ parseYieldExpression: true
         if (extra.range || extra.loc) {
 
             wrapTracking = wrapTrackingFunction(extra.range, extra.loc);
+            wrapTrackingPreserveWhitespace =
+                wrapTrackingFunction(extra.range, extra.loc, true);
 
             extra.parseAdditiveExpression = parseAdditiveExpression;
             extra.parseAssignmentExpression = parseAssignmentExpression;
@@ -4918,7 +4955,11 @@ parseYieldExpression: true
             extra.parseXJSIdentifier = parseXJSIdentifier;
             extra.parseXJSChild = parseXJSChild;
             extra.parseXJSAttribute = parseXJSAttribute;
+            extra.parseXJSAttributeValue = parseXJSAttributeValue;
+            extra.parseXJSExpression = parseXJSExpression;
             extra.parseXJSElement = parseXJSElement;
+            extra.parseXJSClosingElement = parseXJSClosingElement;
+            extra.parseXJSOpeningElement = parseXJSOpeningElement;
 
             parseAdditiveExpression = wrapTracking(extra.parseAdditiveExpression);
             parseAssignmentExpression = wrapTracking(extra.parseAssignmentExpression);
@@ -4970,9 +5011,13 @@ parseYieldExpression: true
             parseClassExpression = wrapTracking(extra.parseClassExpression);
             parseClassBody = wrapTracking(extra.parseClassBody);
             parseXJSIdentifier = wrapTracking(parseXJSIdentifier);
-            parseXJSChild = wrapTracking(parseXJSChild);
+            parseXJSChild = wrapTrackingPreserveWhitespace(parseXJSChild);
             parseXJSAttribute = wrapTracking(parseXJSAttribute);
+            parseXJSAttributeValue = wrapTracking(parseXJSAttributeValue);
+            parseXJSExpression = wrapTracking(parseXJSExpression);
             parseXJSElement = wrapTracking(parseXJSElement);
+            parseXJSClosingElement = wrapTracking(parseXJSClosingElement);
+            parseXJSOpeningElement = wrapTracking(parseXJSOpeningElement);
         }
 
         if (typeof extra.tokens !== 'undefined') {
@@ -5046,7 +5091,11 @@ parseYieldExpression: true
             parseXJSIdentifier = extra.parseXJSIdentifier;
             parseXJSChild = extra.parseXJSChild;
             parseXJSAttribute = extra.parseXJSAttribute;
+            parseXJSAttributeValue = extra.parseXJSAttributeValue;
+            parseXJSExpression = extra.parseXJSExpression;
             parseXJSElement = extra.parseXJSElement;
+            parseXJSClosingElement = extra.parseXJSClosingElement;
+            parseXJSOpeningElement = extra.parseXJSOpeningElement;
         }
 
         if (typeof extra.scanRegExp === 'function') {
